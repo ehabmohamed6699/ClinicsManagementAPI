@@ -21,6 +21,7 @@ namespace ClinicAppointmentReservation.Domain.Models
         [DisplayName("Specialization")]
         public int SpecializationId { get; set; }
         public virtual Specialization Specialization { get; set; }
-        public virtual ICollection<DoctorClinic> DoctorClinics { get; set; }
+
+        public virtual List<Clinic> Clinics { get; set; } = new();
     }
 }

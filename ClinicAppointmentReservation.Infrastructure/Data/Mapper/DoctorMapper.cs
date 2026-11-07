@@ -11,7 +11,7 @@ namespace ClinicAppointmentReservation.Infrastructure.Data.Mapper
     public partial class DoctorMapper
     {
         [MapProperty(nameof(Doctor.Specialization.Name), nameof(DoctorDTO.SpecializationName))]
-        [MapProperty(nameof(Doctor.DoctorClinics), nameof(DoctorDTO.Clinics))]
+        [MapProperty(nameof(Doctor.Clinics), nameof(DoctorDTO.Clinics))]
         [MapProperty(nameof(Doctor.User.Name), nameof(DoctorDTO.Name))]
         [MapProperty(nameof(Doctor.User.Gender), nameof(DoctorDTO.Gender))]
         [MapProperty(nameof(Doctor.User.DateOfBirth), nameof(DoctorDTO.DateOfBirth))]

@@ -10,6 +10,7 @@ namespace ClinicAppointmentReservation.Domain.Interfaces
         ISpecializationRepository Specializations { get; }
         IPatientRepository Patients { get; }
         IDoctorRepository Doctors { get; }
+        IAppointmentRepository Appointments { get; }
         Task<int> SaveChangesAsync();
     }
 }

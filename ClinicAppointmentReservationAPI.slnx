@@ -1,5 +1,4 @@
 <Solution>
-  <Project Path="ClinicAppointmentReservation.Application/ClinicAppointmentReservation.Application.csproj" />
   <Project Path="ClinicAppointmentReservation.Domain/ClinicAppointmentReservation.Domain.csproj" />
   <Project Path="ClinicAppointmentReservation.Infrastructure/ClinicAppointmentReservation.Infrastructure.csproj" />
   <Project Path="ClinicAppointmentReservationAPI/ClinicAppointmentReservation.WebAPI.csproj" />

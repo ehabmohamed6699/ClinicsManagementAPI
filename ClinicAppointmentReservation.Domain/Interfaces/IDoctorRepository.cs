@@ -1,4 +1,5 @@
 ﻿using ClinicAppointmentReservation.Domain.Models;
+using ClinicAppointmentReservation.Domain.Models.DTO;
 using ClinicAppointmentReservation.Domain.Records;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,8 @@ namespace ClinicAppointmentReservation.Domain.Interfaces
         Task<Doctor?> GetDetailsAsync(int id);
         Task<(IEnumerable<Doctor> doctors, int TotalCount)> GetByClinicIdAsync(int clinicId, DoctorSearchParameters parameters);
         Task<(IEnumerable<Doctor> doctors, int TotalCount)> GetPendingDoctors(DoctorSearchParameters parameters);
+
+        Task<IEnumerable<AppointmentDTO>> GetMyAppointments(string userId);
 
     }
 }

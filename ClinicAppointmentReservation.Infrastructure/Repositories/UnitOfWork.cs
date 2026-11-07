@@ -13,12 +13,15 @@ namespace ClinicAppointmentReservation.Infrastructure.Repositories
         public ISpecializationRepository Specializations { get; private set; }
         public IPatientRepository Patients { get; private set; }
         public IDoctorRepository Doctors { get; private set; }
+
+        public IAppointmentRepository Appointments { get; private set; }
         public UnitOfWork(AppDbContext context) {
             _context = context;
             this.Clinics = new ClinicRepository(_context);
             this.Specializations = new SpecializationRepository(_context);
             this.Patients = new PatientRepository(_context);
             this.Doctors = new DoctorRepository(_context);
+            this.Appointments = new AppointmentRepository(_context);
         }
         public void Dispose()
         {

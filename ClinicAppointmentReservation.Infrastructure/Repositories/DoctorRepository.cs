@@ -1,5 +1,7 @@
-﻿using ClinicAppointmentReservation.Domain.Interfaces;
+﻿using ClinicAppointmentReservation.Domain.Exceptions;
+using ClinicAppointmentReservation.Domain.Interfaces;
 using ClinicAppointmentReservation.Domain.Models;
+using ClinicAppointmentReservation.Domain.Models.DTO;
 using ClinicAppointmentReservation.Domain.Records;
 using ClinicAppointmentReservation.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +11,7 @@ using System.Text;
 
 namespace ClinicAppointmentReservation.Infrastructure.Repositories
 {
+    
     public class DoctorRepository : IDoctorRepository
     {
         private readonly AppDbContext _context;
@@ -39,7 +42,7 @@ namespace ClinicAppointmentReservation.Infrastructure.Repositories
             }
             if(parameters.ClinicId.HasValue)
             {
-                query = query.Where(d => d.DoctorClinics.Any(dc => dc.ClinicId == parameters.ClinicId.Value));
+                query = query.Where(d => d.Clinics.Any(c => c.Id == parameters.ClinicId.Value));
             }
             int page = Math.Max(parameters.Page, 1);
             var totalCount = await query.CountAsync();
@@ -51,9 +54,7 @@ namespace ClinicAppointmentReservation.Infrastructure.Repositories
 
         public async Task<(IEnumerable<Doctor> doctors, int TotalCount)> GetByClinicIdAsync(int clinicId, DoctorSearchParameters parameters)
         {
-            var query = _context.Clinics.Where(c => c.Id == clinicId)
-                                        .SelectMany(c => c.DoctorClinics)
-                                        .Select(dc => dc.Doctor)
+            var query = _context.Doctors.Where(d => d.Clinics.Any(c => c.Id == clinicId))
                                         .AsNoTracking()
                                         .AsQueryable();
             if (!string.IsNullOrWhiteSpace(parameters.Search))
@@ -63,10 +64,6 @@ namespace ClinicAppointmentReservation.Infrastructure.Repositories
             if(parameters.SpecializationId.HasValue)
             {
                 query = query.Where(d => d.SpecializationId == parameters.SpecializationId.Value);
-            }
-            if(parameters.ClinicId.HasValue)
-            {
-                query = query.Where(d => d.DoctorClinics.Any(dc => dc.ClinicId == parameters.ClinicId.Value));
             }
             int page = Math.Max(parameters.Page, 1);
             var totalCount = await query.CountAsync();
@@ -91,9 +88,35 @@ namespace ClinicAppointmentReservation.Infrastructure.Repositories
         {
             return await _context.Doctors.AsNoTracking().Include(x => x.Specialization)
                                             .Include(d => d.User)
-                                            .Include(d => d.DoctorClinics)
-                                            .ThenInclude(dc => dc.Clinic)
+                                            .Include(d => d.Clinics)
                                             .FirstOrDefaultAsync(d => d.Id == id);
+        }
+
+        public async Task<IEnumerable<AppointmentDTO>> GetMyAppointments(string userId)
+        {
+            var doctor = await _context.Doctors.AsNoTracking().FirstOrDefaultAsync(d => d.UserId == userId);
+            if(doctor == null || !doctor.IsApproved || doctor.IsRejected) throw new DoctorHasNoApprovedProfileException();
+            var appointments = await _context.Appointments.Where(a => a.DoctorId == doctor.Id).Select(a => new AppointmentDTO { 
+                Id = a.Id,
+                AppointmentDate = a.AppointmentDate,
+                Status = a.Status,
+                Fee = a.Fee,
+                PatientNotes = a.PatientNotes,
+                CreatedAt = a.CreatedAt,
+                Patient = new AppointmentPatientDTO
+                {
+                    Id = a.Patient.Id,
+                    Email = a.Patient.User.Email,
+                    Name = a.Patient.User.Name
+                },
+                Clinic = new AppointmentClinicDTO
+                {
+                    Id = a.Clinic.Id,
+                    Name = a.Clinic.Name,
+                    PhoneNumber = a.Clinic.PhoneNumber
+                }
+            }).ToListAsync();
+            return appointments;
         }
 
         public async Task<(IEnumerable<Doctor> doctors, int TotalCount)> GetPendingDoctors(DoctorSearchParameters parameters)

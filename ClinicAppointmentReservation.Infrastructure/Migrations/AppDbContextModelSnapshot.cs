@@ -17,7 +17,7 @@ namespace ClinicAppointmentReservation.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.5")
+                .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -42,17 +42,14 @@ namespace ClinicAppointmentReservation.Infrastructure.Migrations
                     b.Property<int>("DoctorId")
                         .HasColumnType("int");
 
-                    b.Property<int>("DurationInMinutes")
-                        .HasColumnType("int");
+                    b.Property<decimal>("Fee")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("PatientId")
                         .HasColumnType("int");
 
                     b.Property<string>("PatientNotes")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -94,6 +91,36 @@ namespace ClinicAppointmentReservation.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Clinics");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Address = "Faisal",
+                            Name = "Al Safa",
+                            PhoneNumber = "+201100101011"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Address = "Nasr City",
+                            Name = "Egy Medica",
+                            PhoneNumber = "+201000101011"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Address = "Dokki",
+                            Name = "Cairo Care",
+                            PhoneNumber = "+201200101011"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Address = "Kit Kat",
+                            Name = "Optica",
+                            PhoneNumber = "+201500101011"
+                        });
                 });
 
             modelBuilder.Entity("ClinicAppointmentReservation.Domain.Models.Doctor", b =>
@@ -135,29 +162,6 @@ namespace ClinicAppointmentReservation.Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Doctors");
-                });
-
-            modelBuilder.Entity("ClinicAppointmentReservation.Domain.Models.DoctorClinic", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ClinicId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DoctorId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClinicId");
-
-                    b.HasIndex("DoctorId");
-
-                    b.ToTable("DoctorClinics");
                 });
 
             modelBuilder.Entity("ClinicAppointmentReservation.Domain.Models.Patient", b =>
@@ -222,6 +226,21 @@ namespace ClinicAppointmentReservation.Infrastructure.Migrations
                             Id = 5,
                             Name = "Orthopedics"
                         });
+                });
+
+            modelBuilder.Entity("ClinicDoctor", b =>
+                {
+                    b.Property<int>("ClinicsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DoctorsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ClinicsId", "DoctorsId");
+
+                    b.HasIndex("DoctorsId");
+
+                    b.ToTable("ClinicDoctor");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -495,25 +514,6 @@ namespace ClinicAppointmentReservation.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ClinicAppointmentReservation.Domain.Models.DoctorClinic", b =>
-                {
-                    b.HasOne("ClinicAppointmentReservation.Domain.Models.Clinic", "Clinic")
-                        .WithMany("DoctorClinics")
-                        .HasForeignKey("ClinicId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ClinicAppointmentReservation.Domain.Models.Doctor", "Doctor")
-                        .WithMany("DoctorClinics")
-                        .HasForeignKey("DoctorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Clinic");
-
-                    b.Navigation("Doctor");
-                });
-
             modelBuilder.Entity("ClinicAppointmentReservation.Domain.Models.Patient", b =>
                 {
                     b.HasOne("ClinicAppointmentReservation.Domain.Models.User", "User")
@@ -523,6 +523,21 @@ namespace ClinicAppointmentReservation.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ClinicDoctor", b =>
+                {
+                    b.HasOne("ClinicAppointmentReservation.Domain.Models.Clinic", null)
+                        .WithMany()
+                        .HasForeignKey("ClinicsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ClinicAppointmentReservation.Domain.Models.Doctor", null)
+                        .WithMany()
+                        .HasForeignKey("DoctorsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -576,16 +591,9 @@ namespace ClinicAppointmentReservation.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ClinicAppointmentReservation.Domain.Models.Clinic", b =>
-                {
-                    b.Navigation("DoctorClinics");
-                });
-
             modelBuilder.Entity("ClinicAppointmentReservation.Domain.Models.Doctor", b =>
                 {
                     b.Navigation("Appointments");
-
-                    b.Navigation("DoctorClinics");
                 });
 
             modelBuilder.Entity("ClinicAppointmentReservation.Domain.Models.Patient", b =>

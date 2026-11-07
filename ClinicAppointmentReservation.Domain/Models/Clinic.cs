@@ -16,6 +16,6 @@ namespace ClinicAppointmentReservation.Domain.Models
         [MaxLength(20)]
         public string PhoneNumber { get; set; }
 
-        public virtual ICollection<DoctorClinic> DoctorClinics { get; set; }
+        public virtual List<Doctor> Doctors { get; set; } = new();
     }
 }

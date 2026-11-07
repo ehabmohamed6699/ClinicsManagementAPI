@@ -13,11 +13,10 @@ namespace ClinicAppointmentReservation.Domain.Models
 
 
         public DateTime AppointmentDate { get; set; }
-        public int DurationInMinutes { get; set; } 
 
         public AppointmentStatus Status { get; set; } = AppointmentStatus.Pending;
 
-        public decimal Price { get; set; }
+        public decimal Fee { get; set; }
         public string? PatientNotes { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;

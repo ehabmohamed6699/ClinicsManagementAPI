@@ -67,10 +67,14 @@ namespace ClinicAppointmentReservation.WebAPI.Controllers
             {
                 return NotFound();
             }
-            existingClinic.Name = clinic.Name;
-            existingClinic.Address = clinic.Address;
-            existingClinic.PhoneNumber = clinic.PhoneNumber;
-            _unitOfWork.Clinics.Update(existingClinic);
+            var updatedClinic = new Clinic
+            {
+                Id = existingClinic.Id,
+                Name = clinic.Name,
+                Address = clinic.Address,
+                PhoneNumber = clinic.PhoneNumber
+            };
+            _unitOfWork.Clinics.Update(updatedClinic);
             await _unitOfWork.SaveChangesAsync();
             return Ok(existingClinic);
         }
@@ -83,7 +87,10 @@ namespace ClinicAppointmentReservation.WebAPI.Controllers
             {
                 return NotFound();
             }
-            _unitOfWork.Clinics.Delete(clinic);
+            _unitOfWork.Clinics.Delete(new Clinic
+            {
+                Id = clinic.Id
+            });
             await _unitOfWork.SaveChangesAsync();
             return NoContent();
         }
@@ -103,7 +110,7 @@ namespace ClinicAppointmentReservation.WebAPI.Controllers
             }
             try
             {
-                _unitOfWork.Clinics.AssignDoctorToClinic(doctorId, clinicId);
+                await _unitOfWork.Clinics.AssignDoctorToClinic(doctorId, clinicId);
                 await _unitOfWork.SaveChangesAsync();
                 return Ok("Doctor assigned to clinic successfully.");
             }
@@ -128,7 +135,7 @@ namespace ClinicAppointmentReservation.WebAPI.Controllers
             }
             try
             {
-                _unitOfWork.Clinics.UnassignDoctorFromClinic(doctorId, clinicId);
+                await _unitOfWork.Clinics.UnassignDoctorFromClinic(doctorId, clinicId);
                 await _unitOfWork.SaveChangesAsync();
                 return Ok("Doctor unassigned from clinic successfully.");
             }

@@ -1,11 +1,11 @@
-﻿using ClinicAppointmentReservation.Domain.Interfaces;
+﻿using ClinicAppointmentReservation.Domain.Exceptions;
+using ClinicAppointmentReservation.Domain.Interfaces;
 using ClinicAppointmentReservation.Domain.Models;
 using ClinicAppointmentReservation.Domain.Models.DTO;
 using ClinicAppointmentReservation.Domain.Records;
 using ClinicAppointmentReservation.Infrastructure.Data.Mapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -85,7 +85,7 @@ namespace ClinicAppointmentReservation.WebAPI.Controllers
             }
             if(doctor.IsRejected)
             {
-                return BadRequest("You cannot approve an already rejected doctor.");
+                return Problem(statusCode:StatusCodes.Status403Forbidden,title:"You cannot approve an already rejected doctor.");
             }
             doctor.IsApproved = true;
             doctor.ApprovalDate = DateTime.Now;
@@ -110,7 +110,7 @@ namespace ClinicAppointmentReservation.WebAPI.Controllers
             }
             if(doctor.IsApproved)
             {
-                return BadRequest("You cannot reject an already approved doctor.");
+                return Problem(statusCode:StatusCodes.Status403Forbidden, title:"You cannot reject an already approved doctor.");
             }
             doctor.IsRejected = true;
             _unitOfWork.Doctors.Update(doctor);
@@ -151,6 +151,25 @@ namespace ClinicAppointmentReservation.WebAPI.Controllers
                 Doctors = doctors.doctors,
                 TotalCount = doctors.TotalCount
             });
+        }
+        [HttpGet("appointments")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "doctor")]
+        public async Task<IActionResult> GetDoctorAppointments()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var appointments = await _unitOfWork.Doctors.GetMyAppointments(user.Id);
+                return Ok(appointments);
+            }
+            catch (DoctorHasNoApprovedProfileException)
+            {
+                return Problem(statusCode:StatusCodes.Status403Forbidden,title:"You don't have an approved profile yet.");
+            }
         }
     }
 }
