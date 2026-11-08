@@ -16,6 +16,7 @@ namespace ClinicAppointmentReservation.Infrastructure.Repositories
             context.Appointments.Add(new Appointment
             {
                 AppointmentDate = appointment.AppointmentDate,
+                PatientNotes = appointment.PatientNotes,
                 PatientId = patinet.Id,
                 DoctorId = appointment.DoctorId,
                 ClinicId = appointment.ClinicId
