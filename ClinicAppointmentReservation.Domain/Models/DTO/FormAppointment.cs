@@ -9,7 +9,7 @@ namespace ClinicAppointmentReservation.Domain.Models.DTO
     {
         public DateTime AppointmentDate { get; set; }
 
-        [MaxLength(200)]
+        [MaxLength(500)]
         public string? PatientNotes { get; set; }
 
         public int DoctorId { get; set; }
