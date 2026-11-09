@@ -1,4 +1,5 @@
-﻿using ClinicAppointmentReservation.Domain.Interfaces;
+﻿using ClinicAppointmentReservation.Domain.Exceptions;
+using ClinicAppointmentReservation.Domain.Interfaces;
 using ClinicAppointmentReservation.Domain.Models;
 using ClinicAppointmentReservation.Domain.Models.DTO;
 using ClinicAppointmentReservation.Infrastructure.Data.Mapper;
@@ -27,7 +28,22 @@ namespace ClinicAppointmentReservation.WebAPI.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return BadRequest(ModelState);
-            await _unitOfWork.Appointments.BookAppointment(appointment, user.Id);
+            try
+            {
+                await _unitOfWork.Appointments.BookAppointment(appointment, user.Id);
+            }
+            catch(PatientNotFoundException e)
+            {
+                return Problem(statusCode: StatusCodes.Status404NotFound, title: e.Message);
+            }
+            catch(DoctorNotFoundException e)
+            {
+                return Problem(statusCode: StatusCodes.Status404NotFound, title: e.Message);
+            }
+            catch(DoctorHasNoApprovedProfileException e)
+            {
+                return Problem(statusCode: StatusCodes.Status400BadRequest, title: e.Message);
+            }
             await _unitOfWork.SaveChangesAsync();
             return Created();
         }

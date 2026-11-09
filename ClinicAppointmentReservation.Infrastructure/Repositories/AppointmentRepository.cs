@@ -13,12 +13,14 @@ namespace ClinicAppointmentReservation.Infrastructure.Repositories
         {
             var patinet = await context.Patients.FirstOrDefaultAsync(p => p.UserId == userId);
             if (patinet == null) throw new PatientNotFoundException();
-            var doctorFee = await context.Doctors.Where(d => d.Id == appointment.DoctorId).Select(d => d.ConsultationFee).FirstOrDefaultAsync();
+            var doctor = await context.Doctors.FindAsync(appointment.DoctorId);
+            if(doctor == null) throw new DoctorNotFoundException();
+            if(!doctor.IsApproved) throw new DoctorHasNoApprovedProfileException();
             context.Appointments.Add(new Appointment
             {
                 AppointmentDate = appointment.AppointmentDate,
                 PatientNotes = appointment.PatientNotes,
-                Fee = doctorFee,
+                Fee = doctor.ConsultationFee,
                 PatientId = patinet.Id,
                 DoctorId = appointment.DoctorId,
                 ClinicId = appointment.ClinicId
