@@ -12,8 +12,10 @@ namespace ClinicAppointmentReservation.Domain.Models
         [MaxLength(500)]
         public string Bio { get; set; }
         public byte[]? Image { get; set; }
+        [Range(0, 10000)]
+        [DefaultValue(0)]
+        public int ConsultationFee {get; set;}
         public bool IsApproved { get; set; } = false;
-
         public DateTime? ApprovalDate { get; set; } = null;
         public bool IsRejected { get; set; } = false;
 

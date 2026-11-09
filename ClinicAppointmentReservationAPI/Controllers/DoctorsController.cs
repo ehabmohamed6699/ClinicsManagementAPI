@@ -63,7 +63,8 @@ namespace ClinicAppointmentReservation.WebAPI.Controllers
             {
                 Bio = model.Bio,
                 SpecializationId = model.SpecializationId,
-                UserId = user.Id
+                UserId = user.Id,
+                ConsultationFee = model.ConsultationFee
             };
             _unitOfWork.Doctors.Add(newDoctor);
             await _unitOfWork.SaveChangesAsync();
