@@ -1,8 +1,8 @@
 ﻿using ClinicAppointmentReservation.Domain.Interfaces;
 using ClinicAppointmentReservation.Domain.Models;
+using ClinicAppointmentReservation.WebAPI.Extentions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicAppointmentReservation.WebAPI.Controllers
@@ -21,19 +21,15 @@ namespace ClinicAppointmentReservation.WebAPI.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetAllSpecializations()
         {
-            var specializations = await _unitOfWork.Specializations.GetAllAsync();
-            return Ok(specializations);
+            var result = await _unitOfWork.Specializations.GetAllAsync();
+            return this.ToActionResult<IEnumerable<Specialization>>(result);
         }
         [HttpGet("{id}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetSpecializationById(int id)
         {
-            var specialization = await _unitOfWork.Specializations.GetByIdAsync(id);
-            if (specialization == null)
-            {
-                return NotFound();
-            }
-            return Ok(specialization);
+            var result = await _unitOfWork.Specializations.GetByIdAsync(id);
+            return this.ToActionResult<Specialization>(result);
         }
 
         [HttpPost]
@@ -44,36 +40,37 @@ namespace ClinicAppointmentReservation.WebAPI.Controllers
             {
                 Name = name
             };
-            _unitOfWork.Specializations.Create(newSpecialization);
+            var result = _unitOfWork.Specializations.Create(newSpecialization);
             await _unitOfWork.SaveChangesAsync();
-            return Ok(newSpecialization);
+            
+            return this.ToCreatedAtActionResult<Specialization>(result, nameof(GetSpecializationById), new {Id = result.Content!.Value!.Id});
         }
         [HttpPut("{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin")]
         public async Task<IActionResult> UpdateSpecialization(int id, [FromBody] string name)
         {
-            var existingSpecialization = await _unitOfWork.Specializations.GetByIdAsync(id);
-            if (existingSpecialization == null)
+            var searchResult = await _unitOfWork.Specializations.GetByIdAsync(id);
+            if (!searchResult.IsSuccess)
             {
-                return NotFound();
+                return this.ToActionResult<Specialization>(searchResult);
             }
-            existingSpecialization.Name = name;
-            _unitOfWork.Specializations.Update(existingSpecialization);
+            searchResult.Content!.Value!.Name = name;
+            var result = _unitOfWork.Specializations.Update(searchResult.Content.Value);
             await _unitOfWork.SaveChangesAsync();
-            return Ok(existingSpecialization);
+            return this.ToActionResult<object>(result);
         }
         [HttpDelete("{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin")]
         public async Task<IActionResult> DeleteSpecialization(int id)
         {
-            var existingSpecialization = await _unitOfWork.Specializations.GetByIdAsync(id);
-            if (existingSpecialization == null)
+            var searchResult = await _unitOfWork.Specializations.GetByIdAsync(id);
+            if (!searchResult.IsSuccess)
             {
-                return NotFound();
+                return this.ToActionResult<Specialization>(searchResult);
             }
-            _unitOfWork.Specializations.Delete(existingSpecialization);
+            var result = _unitOfWork.Specializations.Delete(searchResult.Content!.Value!);
             await _unitOfWork.SaveChangesAsync();
-            return NoContent();
+            return this.ToActionResult<object>(result);
         }
     }
 }

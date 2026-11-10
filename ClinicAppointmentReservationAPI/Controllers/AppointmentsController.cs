@@ -42,7 +42,7 @@ namespace ClinicAppointmentReservation.WebAPI.Controllers
             }
             catch(DoctorHasNoApprovedProfileException e)
             {
-                return Problem(statusCode: StatusCodes.Status400BadRequest, title: e.Message);
+                return Problem(statusCode: StatusCodes.Status409Conflict, title: e.Message);
             }
             await _unitOfWork.SaveChangesAsync();
             return Created();

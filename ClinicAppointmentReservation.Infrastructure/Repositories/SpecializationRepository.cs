@@ -1,10 +1,9 @@
-﻿using ClinicAppointmentReservation.Domain.Interfaces;
+﻿using ClinicAppointmentReservation.Domain.Enums;
+using ClinicAppointmentReservation.Domain.Interfaces;
 using ClinicAppointmentReservation.Domain.Models;
+using ClinicAppointmentReservation.Domain.Records;
 using ClinicAppointmentReservation.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ClinicAppointmentReservation.Infrastructure.Repositories
 {
@@ -15,29 +14,33 @@ namespace ClinicAppointmentReservation.Infrastructure.Repositories
         {
             _context = context;
         }
-        public void Create(Specialization specialization)
+        public Result<Specialization> Create(Specialization specialization)
         {
             _context.Specializations.Add(specialization);
+            return new Result<Specialization>(new ResponseContent<Specialization>(Value: specialization, Type: SuccessType.Created));
         }
 
-        public void Delete(Specialization specialization)
+        public Result<object> Delete(Specialization specialization)
         {
             _context.Specializations.Remove(specialization);
+            return new Result<object>(new ResponseContent<object>(Type: SuccessType.NoContent, Value: null));
         }
 
-        public async Task<IEnumerable<Specialization>> GetAllAsync()
+        public async Task<Result<IEnumerable<Specialization>>> GetAllAsync()
         {
-            return await _context.Specializations.AsNoTracking().ToListAsync();
+            return new Result<IEnumerable<Specialization>>(new ResponseContent<IEnumerable<Specialization>>(Type: SuccessType.Ok, Value: await _context.Specializations.AsNoTracking().ToListAsync()));
         }
 
-        public async Task<Specialization?> GetByIdAsync(int id)
+        public async Task<Result<Specialization>> GetByIdAsync(int id)
         {
-            return await _context.Specializations.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
+            var result = await _context.Specializations.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
+            return result == null ? new Result<Specialization>(Content: null, Error: new Error(ErrorType.NotFound, $"Specialization {id} was not found.")) : new Result<Specialization>(new ResponseContent<Specialization>(Type: SuccessType.Ok, Value: result));
         }
 
-        public void Update(Specialization specialization)
+        public Result<object> Update(Specialization specialization)
         {
             _context.Specializations.Update(specialization);
+            return new Result<object>(new ResponseContent<object>(Type: SuccessType.NoContent, Value: null));
         }
     }
 }

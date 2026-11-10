@@ -3,6 +3,7 @@ using ClinicAppointmentReservation.Domain.Models;
 using ClinicAppointmentReservation.Domain.Models.DTO;
 using ClinicAppointmentReservation.Domain.Records;
 using ClinicAppointmentReservation.Infrastructure.Data;
+using ClinicAppointmentReservation.WebAPI.Extentions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -28,21 +29,14 @@ namespace ClinicAppointmentReservation.WebAPI.Controllers
         {
             var parameters = new ClinicSearchParameters(search, page ?? 1);
             var result = await _unitOfWork.Clinics.GetAllAsync(parameters);
-            return Ok(new {
-                Clinics = result.Clinics,
-                TotalCount = result.TotalCount
-            });
+            return this.ToActionResult<PaginatedResponseContent<Clinic>>(result);
         }
         [HttpGet("{id}")]
         [Authorize]
         public async Task<IActionResult> GetClinicById(int id)
         {
-            var clinic = await _unitOfWork.Clinics.GetByIdAsync(id);
-            if (clinic == null)
-            {
-                return NotFound();
-            }
-            return Ok(clinic);
+            var result = await _unitOfWork.Clinics.GetByIdAsync(id);
+            return this.ToActionResult<ClinicDTO>(result);
         }
         [HttpPost]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin")]
@@ -54,95 +48,81 @@ namespace ClinicAppointmentReservation.WebAPI.Controllers
                 Address = clinic.Address,
                 PhoneNumber = clinic.PhoneNumber
             };
-            _unitOfWork.Clinics.Add(newClinic);
+            var result = _unitOfWork.Clinics.Add(newClinic);
             await _unitOfWork.SaveChangesAsync();
-            return Ok(newClinic);
+            return this.ToCreatedAtActionResult<ClinicDTO>(result, nameof(GetClinicById), new {Id = result.Content!.Value!.Id});
         }
         [HttpPut("{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin")]
         public async Task<IActionResult> UpdateClinic(int id, FormClinic clinic)
         {
-            var existingClinic = await _unitOfWork.Clinics.GetByIdAsync(id);
-            if (existingClinic == null)
+            var searchResult = await _unitOfWork.Clinics.GetByIdAsync(id);
+            if (!searchResult.IsSuccess)
             {
-                return NotFound();
+                return this.ToActionResult<ClinicDTO>(searchResult);
             }
             var updatedClinic = new Clinic
             {
-                Id = existingClinic.Id,
+                Id = searchResult.Content!.Value!.Id,
                 Name = clinic.Name,
                 Address = clinic.Address,
                 PhoneNumber = clinic.PhoneNumber
             };
-            _unitOfWork.Clinics.Update(updatedClinic);
+            var result = _unitOfWork.Clinics.Update(updatedClinic);
             await _unitOfWork.SaveChangesAsync();
-            return Ok(existingClinic);
+            return this.ToActionResult<object>(result);
         }
         [HttpDelete("{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin")]
         public async Task<IActionResult> DeleteClinic(int id)
         {
-            var clinic = await _unitOfWork.Clinics.GetByIdAsync(id);
-            if (clinic == null)
+            var searchResult = await _unitOfWork.Clinics.GetByIdAsync(id);
+            if (!searchResult.IsSuccess)
             {
-                return NotFound();
+                return this.ToActionResult<ClinicDTO>(searchResult);
             }
-            _unitOfWork.Clinics.Delete(new Clinic
+            var result =  _unitOfWork.Clinics.Delete(new Clinic
             {
-                Id = clinic.Id
+                Id = searchResult.Content!.Value!.Id
             });
             await _unitOfWork.SaveChangesAsync();
-            return NoContent();
+            return this.ToActionResult<object>(result);
         }
         [HttpPost("{clinicId}/assign-doctor/{doctorId}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin")]
         public async Task<IActionResult> AssignDoctorToClinic(int clinicId, int doctorId)
         {
-            var clinic = await _unitOfWork.Clinics.GetByIdAsync(clinicId);
-            if (clinic == null)
+            var clinicSeachResult = await _unitOfWork.Clinics.GetByIdAsync(clinicId);
+            if (!clinicSeachResult.IsSuccess)
             {
-                return NotFound("Clinic not found.");
+                return this.ToActionResult<ClinicDTO>(clinicSeachResult);
             }
             var doctor = await _unitOfWork.Doctors.GetByIdAsync(doctorId);
             if (doctor == null)
             {
                 return NotFound("Doctor not found.");
             }
-            try
-            {
-                await _unitOfWork.Clinics.AssignDoctorToClinic(doctorId, clinicId);
-                await _unitOfWork.SaveChangesAsync();
-                return Ok("Doctor assigned to clinic successfully.");
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var result = await _unitOfWork.Clinics.AssignDoctorToClinic(doctorId, clinicId);
+            await _unitOfWork.SaveChangesAsync();
+            return this.ToActionResult<string>(result);
         }
         [HttpPost("{clinicId}/unassign-doctor/{doctorId}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin")]
         public async Task<IActionResult> UnassignDoctorFromClinic(int clinicId, int doctorId)
         {
-            var clinic = await _unitOfWork.Clinics.GetByIdAsync(clinicId);
-            if (clinic == null)
+            var clinicSeachResult = await _unitOfWork.Clinics.GetByIdAsync(clinicId);
+            if (!clinicSeachResult.IsSuccess)
             {
-                return NotFound("Clinic not found.");
+                return this.ToActionResult<ClinicDTO>(clinicSeachResult);
             }
             var doctor = await _unitOfWork.Doctors.GetByIdAsync(doctorId);
             if (doctor == null)
             {
                 return NotFound("Doctor not found.");
             }
-            try
-            {
-                await _unitOfWork.Clinics.UnassignDoctorFromClinic(doctorId, clinicId);
-                await _unitOfWork.SaveChangesAsync();
-                return Ok("Doctor unassigned from clinic successfully.");
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var result = await _unitOfWork.Clinics.UnassignDoctorFromClinic(doctorId, clinicId);
+            await _unitOfWork.SaveChangesAsync();
+            return this.ToActionResult<string>(result);
         }
     }
 }
