@@ -11,9 +11,11 @@ namespace ClinicAppointmentReservation.Infrastructure.Repositories
     public class ClinicRepository : IClinicRepository
     {
         private readonly AppDbContext _context;
-        public ClinicRepository(AppDbContext context)
+        private readonly ResultBuilder _builder;
+        public ClinicRepository(AppDbContext context, ResultBuilder builder)
         {
             _context = context;
+            _builder = builder;
         }
         public Result<ClinicDTO> Add(Clinic entity)
         {
@@ -24,7 +26,7 @@ namespace ClinicAppointmentReservation.Infrastructure.Repositories
                 Address = entity.Address, 
                 PhoneNumber = entity.PhoneNumber
             };
-            return new Result<ClinicDTO>(new ResponseContent<ClinicDTO>(SuccessType.Created, clinicDto));
+            return _builder.CreatedResult<ClinicDTO>(clinicDto);
         }
 
         public async Task<Result<string>> AssignDoctorToClinic(int doctorId, int clinicId)
@@ -34,17 +36,17 @@ namespace ClinicAppointmentReservation.Infrastructure.Repositories
                 .SelectMany(c => c.Doctors)
                 .AnyAsync(d => d.Id == doctorId);
             if(assigned)
-                return new Result<string>(Content: null,Error: new Error(ErrorType.Conflict, "Doctor is already assigned to the clinic."));
+                return _builder.ConflictResult<string>("Doctor is already assigned to the clinic.");
             var doctor = await _context.Doctors.FindAsync(doctorId);
             var clinic = await _context.Clinics.Include(c => c.Doctors).FirstOrDefaultAsync(c => c.Id == clinicId);
             clinic!.Doctors.Add(doctor!);
-            return new Result<string>(new ResponseContent<string>(SuccessType.Ok, "Doctor assigned to clinic successfullt."));
+            return _builder.OkResult<string>("Doctor assigned to clinic successfullt.");
         }
 
         public Result<object> Delete(Clinic entity)
         {
             _context.Clinics.Remove(entity);
-            return new Result<object>(new ResponseContent<object>(SuccessType.NoContent, null));
+            return _builder.NoContentResult<object>(null!);
         }
 
         public async Task<Result<PaginatedResponseContent<Clinic>>> GetAllAsync(ClinicSearchParameters parameters)
@@ -59,7 +61,7 @@ namespace ClinicAppointmentReservation.Infrastructure.Repositories
             var clinics = await query.Skip((page - 1) * parameters.PageSize)
                                      .Take(parameters.PageSize)
                                      .ToListAsync();
-            return new Result<PaginatedResponseContent<Clinic>>(new ResponseContent<PaginatedResponseContent<Clinic>>(SuccessType.Ok, new PaginatedResponseContent<Clinic>(clinics, totalCount)));
+            return _builder.OkResult<PaginatedResponseContent<Clinic>>(new PaginatedResponseContent<Clinic>(clinics, totalCount));
         }
 
         public async Task<Result<ClinicDTO>> GetByIdAsync(int id)
@@ -86,7 +88,7 @@ namespace ClinicAppointmentReservation.Infrastructure.Repositories
                     }).ToList()
                 })
                 .FirstOrDefaultAsync();
-            return content == null ? new Result<ClinicDTO>(Content: null, Error: new Error(ErrorType.NotFound, $"Clinic {id} was not found.")) : new Result<ClinicDTO>(new ResponseContent<ClinicDTO>(SuccessType.Ok, content));
+            return content == null ? _builder.NotFoundResult<ClinicDTO>($"Clinic {id} was not found.") : _builder.OkResult<ClinicDTO>(content);
         }
 
         public async Task<Result<string>> UnassignDoctorFromClinic(int doctorId, int clinicId)
@@ -96,17 +98,17 @@ namespace ClinicAppointmentReservation.Infrastructure.Repositories
                     .SelectMany(c => c.Doctors)
                     .AnyAsync(d => d.Id == doctorId);
             if (!assigned)
-                return new Result<string>(Content: null,Error: new Error(ErrorType.Conflict, "Doctor is not assigned to the clinic."));
+                return _builder.ConflictResult<string>("Doctor is not assigned to the clinic.");
             var clinic = await _context.Clinics.Include(c => c.Doctors).FirstOrDefaultAsync(c => c.Id == clinicId);
             var doctor = await _context.Doctors.FindAsync(doctorId);
             clinic!.Doctors.Remove(doctor!);
-            return new Result<string>(new ResponseContent<string>(SuccessType.Ok, "Doctor removed from clinic successfullt."));
+            return _builder.OkResult<string>("Doctor removed from clinic successfullt.");
         }
 
         public Result<object> Update(Clinic entity)
         {
             _context.Clinics.Update(entity);
-            return new Result<object>(new ResponseContent<object>(SuccessType.NoContent, null));
+            return _builder.NoContentResult<object>(null!);
         }
     }
 }

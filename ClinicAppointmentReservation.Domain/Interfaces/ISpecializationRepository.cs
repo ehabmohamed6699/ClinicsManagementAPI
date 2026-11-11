@@ -10,7 +10,7 @@ namespace ClinicAppointmentReservation.Domain.Interfaces
     {
         Task<Result<IEnumerable<Specialization>>> GetAllAsync();
         Task<Result<Specialization>> GetByIdAsync(int id);
-        Result<Specialization> Create(Specialization specialization);
+        Task<Result<Specialization>> Create(Specialization specialization);
         Result<object> Update(Specialization specialization);
         Result<object> Delete(Specialization specialization);
     }
