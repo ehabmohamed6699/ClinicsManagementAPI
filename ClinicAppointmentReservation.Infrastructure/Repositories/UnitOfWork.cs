@@ -22,9 +22,9 @@ namespace ClinicAppointmentReservation.Infrastructure.Repositories
             _builder = builder;
             this.Clinics = new ClinicRepository(_context, _builder);
             this.Specializations = new SpecializationRepository(_context, _builder);
-            this.Patients = new PatientRepository(_context);
-            this.Doctors = new DoctorRepository(_context);
-            this.Appointments = new AppointmentRepository(_context);
+            this.Patients = new PatientRepository(_context, _builder);
+            this.Doctors = new DoctorRepository(_context, _builder);
+            this.Appointments = new AppointmentRepository(_context, _builder);
         }
         public void Dispose()
         {

@@ -9,18 +9,18 @@ namespace ClinicAppointmentReservation.Domain.Interfaces
 {
     public interface IDoctorRepository
     {
-        Task<(IEnumerable<Doctor> doctors , int TotalCount)> GetAllAsync(DoctorSearchParameters parameters);
-        Task<Doctor?> GetByIdAsync(int id);
-        Task<Doctor?> GetByUserIdAsync(string userId);
-        void Add(Doctor entity);
-        void Update(Doctor entity);
-        void Delete(Doctor entity);
+        Task<Result<PaginatedResponseContent<Doctor>>> GetAllAsync(DoctorSearchParameters parameters);
+        Task<Result<Doctor>> GetByIdAsync(int id);
+        Task<Result<Doctor>> GetByUserIdAsync(string userId);
+        Result<Doctor> Add(Doctor entity);
+        Result<object> Update(Doctor entity);
+        Result<object> Delete(Doctor entity);
 
-        Task<Doctor?> GetDetailsAsync(int id);
-        Task<(IEnumerable<Doctor> doctors, int TotalCount)> GetByClinicIdAsync(int clinicId, DoctorSearchParameters parameters);
-        Task<(IEnumerable<Doctor> doctors, int TotalCount)> GetPendingDoctors(DoctorSearchParameters parameters);
+        Task<Result<Doctor>> GetDetailsAsync(int id);
+        Task<Result<PaginatedResponseContent<Doctor>>> GetByClinicIdAsync(int clinicId, DoctorSearchParameters parameters);
+        Task<Result<PaginatedResponseContent<Doctor>>> GetPendingDoctors(DoctorSearchParameters parameters);
 
-        Task<IEnumerable<AppointmentDTO>> GetMyAppointments(string userId);
+        Task<Result<IEnumerable<AppointmentDTO>>> GetMyAppointments(string userId);
 
     }
 }
