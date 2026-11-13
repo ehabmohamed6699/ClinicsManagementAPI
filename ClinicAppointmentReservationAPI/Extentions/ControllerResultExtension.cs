@@ -12,6 +12,7 @@ public static class ControllerResultExtension
         ErrorType.Conflict => controller.Problem(statusCode: 409, title: error.Message),
         ErrorType.NotFound => controller.Problem(statusCode: 404, title: error.Message),
         ErrorType.Forbidden => controller.Problem(statusCode: 403, title: error.Message),
+        ErrorType.BadRequest => controller.Problem(statusCode: 400, title: error.Message),
         _ => controller.Problem()  
     };
     public static IActionResult ToCreatedAtActionResult<T>(this ControllerBase controller, Result<T> result, string actionName, object routeValues)

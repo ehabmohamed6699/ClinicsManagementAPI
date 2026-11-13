@@ -1,8 +1,7 @@
-﻿using ClinicAppointmentReservation.Domain.Exceptions;
-using ClinicAppointmentReservation.Domain.Interfaces;
+﻿using ClinicAppointmentReservation.Domain.Interfaces;
 using ClinicAppointmentReservation.Domain.Models;
 using ClinicAppointmentReservation.Domain.Models.DTO;
-using ClinicAppointmentReservation.Infrastructure.Data.Mapper;
+using ClinicAppointmentReservation.WebAPI.Extentions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -22,30 +21,21 @@ namespace ClinicAppointmentReservation.WebAPI.Controllers
             _unitOfWork = unitOfWork;
             _userManager = userManager;
         }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            throw new NotImplementedException();
+        }
         [HttpPost]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "patient")]
         public async Task<IActionResult> MakeAppointment([FromBody] FormAppointment appointment)
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return BadRequest(ModelState);
-            try
-            {
-                await _unitOfWork.Appointments.BookAppointment(appointment, user.Id);
-            }
-            catch(PatientNotFoundException e)
-            {
-                return Problem(statusCode: StatusCodes.Status404NotFound, title: e.Message);
-            }
-            catch(DoctorNotFoundException e)
-            {
-                return Problem(statusCode: StatusCodes.Status404NotFound, title: e.Message);
-            }
-            catch(DoctorHasNoApprovedProfileException e)
-            {
-                return Problem(statusCode: StatusCodes.Status409Conflict, title: e.Message);
-            }
+            if (user == null) return Problem(statusCode: StatusCodes.Status404NotFound, title: $"User profile not found.");
+            var result = await _unitOfWork.Appointments.BookAppointment(appointment, user.Id);
             await _unitOfWork.SaveChangesAsync();
-            return Created();
+            return this.ToActionResult<Appointment>(result);
         }
     }
 }

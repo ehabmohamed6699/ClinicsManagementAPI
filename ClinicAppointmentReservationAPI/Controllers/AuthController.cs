@@ -80,7 +80,7 @@ namespace ClinicAppointmentReservation.WebAPI.Controllers
                     if (await _userManager.CheckPasswordAsync(user, model.Password))
                     {
                         var claims = new List<Claim>();
-                        claims.Add(new Claim(ClaimTypes.Name, user.UserName));
+                        claims.Add(new Claim(ClaimTypes.Name, user.UserName!));
                         claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id));
 
                         claims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
@@ -90,7 +90,7 @@ namespace ClinicAppointmentReservation.WebAPI.Controllers
                             claims.Add(new Claim(ClaimTypes.Role, role));
                             claims.Add(new Claim("role", role));
                         }
-                        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:SecretKey"]));
+                        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:SecretKey"]!));
                         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
                         var token = new JwtSecurityToken(
                             claims: claims,

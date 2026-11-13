@@ -1,5 +1,4 @@
-﻿using ClinicAppointmentReservation.Domain.Exceptions;
-using ClinicAppointmentReservation.Domain.Interfaces;
+﻿using ClinicAppointmentReservation.Domain.Interfaces;
 using ClinicAppointmentReservation.Domain.Models;
 using ClinicAppointmentReservation.Domain.Models.DTO;
 using ClinicAppointmentReservation.Domain.Records;
