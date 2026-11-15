@@ -17,16 +17,11 @@ namespace ClinicAppointmentReservation.Infrastructure.Repositories
             _context = context;
             _builder = builder;
         }
-        public Result<ClinicDTO> Add(Clinic entity)
+        public Result<Clinic> Add(Clinic entity)
         {
             _context.Clinics.Add(entity);
-            var clinicDto = new ClinicDTO{
-                Id = entity.Id, 
-                Name = entity.Name, 
-                Address = entity.Address, 
-                PhoneNumber = entity.PhoneNumber
-            };
-            return _builder.CreatedResult<ClinicDTO>(clinicDto);
+            
+            return _builder.CreatedResult<Clinic>(entity);
         }
 
         public async Task<Result<string>> AssignDoctorToClinic(int doctorId, int clinicId)

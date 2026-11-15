@@ -21,7 +21,8 @@ namespace ClinicAppointmentReservation.Infrastructure.Repositories
         }
         public async Task<Result<Appointment>> BookAppointment(FormAppointment appointment, string userId)
         {
-            if(appointment.AppointmentDate >= DateTime.Now.AddDays(7) || appointment.AppointmentDate <= DateTime.Now.AddMinutes(30))
+            var now = DateTime.Now;
+            if(appointment.AppointmentDate > now.AddDays(7) || appointment.AppointmentDate <= now.AddMinutes(30))
                 return builder.BadRequestResult<Appointment>("Appointment date must be at least 30 minutes from now and at most 7 days from now");
             var patinet = await context.Patients.FirstOrDefaultAsync(p => p.UserId == userId);
             if (patinet == null) 

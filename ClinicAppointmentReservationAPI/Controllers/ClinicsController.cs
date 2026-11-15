@@ -50,7 +50,7 @@ namespace ClinicAppointmentReservation.WebAPI.Controllers
             };
             var result = _unitOfWork.Clinics.Add(newClinic);
             await _unitOfWork.SaveChangesAsync();
-            return this.ToCreatedAtActionResult<ClinicDTO>(result, nameof(GetClinicById), new {Id = result.Content!.Value!.Id});
+            return this.ToCreatedAtActionResult<Clinic>(result, nameof(GetClinicById), new {Id = result.Content!.Value!.Id});
         }
         [HttpPut("{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin")]

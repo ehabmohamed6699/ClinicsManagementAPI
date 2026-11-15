@@ -11,7 +11,7 @@ namespace ClinicAppointmentReservation.Domain.Interfaces
     {
         Task<Result<PaginatedResponseContent<Clinic>>> GetAllAsync(ClinicSearchParameters parameters);
         Task<Result<ClinicDTO>> GetByIdAsync(int id);
-        Result<ClinicDTO> Add(Clinic entity);
+        Result<Clinic> Add(Clinic entity);
         Result<object> Update(Clinic entity);
         Result<object> Delete(Clinic entity);
         Task<Result<string>> AssignDoctorToClinic(int doctorId, int clinicId);
