@@ -30,7 +30,7 @@ namespace ClinicAppointmentReservation.Domain.Models.DTO
         {
             Id = a.Id;
             AppointmentDate = a.AppointmentDate;
-            Fee = a.Doctor.ConsultationFee;
+            Fee = a.Fee;
             Status = a.Status;
             PatientNotes = a.PatientNotes;
             CreatedAt = a.CreatedAt;
