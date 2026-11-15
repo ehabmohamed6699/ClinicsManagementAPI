@@ -33,8 +33,11 @@ namespace ClinicAppointmentReservation.Infrastructure.Repositories
             if(assigned)
                 return _builder.ConflictResult<string>("Doctor is already assigned to the clinic.");
             var doctor = await _context.Doctors.FindAsync(doctorId);
+            if(doctor == null) return _builder.NotFoundResult<string>($"Doctor {doctorId} does not exist.");
+            if(!doctor.IsApproved) return _builder.ConflictResult<string>($"Doctor {doctorId} is not approved.");
             var clinic = await _context.Clinics.Include(c => c.Doctors).FirstOrDefaultAsync(c => c.Id == clinicId);
-            clinic!.Doctors.Add(doctor!);
+            if(clinic == null) return _builder.NotFoundResult<string>($"Clinic {clinicId} does not exist.");
+            clinic.Doctors.Add(doctor);
             return _builder.OkResult<string>("Doctor assigned to clinic successfullt.");
         }
 
