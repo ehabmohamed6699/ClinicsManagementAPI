@@ -43,7 +43,7 @@ namespace ClinicAppointmentReservation.WebAPI.Controllers
             var result = await _unitOfWork.Specializations.Create(newSpecialization);
             await _unitOfWork.SaveChangesAsync();
             if(!result.IsSuccess) return this.ToActionResult<Specialization>(result);
-            return this.ToCreatedAtActionResult<Specialization>(result, nameof(GetSpecializationById), new {Id = result.Content!.Value!.Id});
+            return this.ToCreatedAtActionResult<Specialization>(result, nameof(GetSpecializationById), s => new {Id = s.Id});
         }
         [HttpPut("{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin")]

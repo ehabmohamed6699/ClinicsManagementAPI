@@ -2,6 +2,7 @@
 using ClinicAppointmentReservation.Domain.Models;
 using ClinicAppointmentReservation.Domain.Records;
 using ClinicAppointmentReservation.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -21,6 +22,12 @@ namespace ClinicAppointmentReservation.Infrastructure.Repositories
         {
             _context.Patients.Add(entity);
             return _builder.CreatedResult<Patient>(entity);
+        }
+
+        public async Task<Result<Patient>> GetByUserIdAsync(string userId)
+        {
+            var patient = await _context.Patients.FirstOrDefaultAsync(p => p.UserId == userId);
+            return patient == null ? _builder.NotFoundResult<Patient>($"User {userId} has no patient profile."):_builder.OkResult<Patient>(patient);
         }
     }
 }

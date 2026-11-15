@@ -66,25 +66,7 @@ namespace ClinicAppointmentReservation.Infrastructure.Repositories
         {
             var content = await _context.Clinics
                 .Where(c => c.Id == id)
-                .Select(c => new ClinicDTO
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    Address = c.Address,
-                    PhoneNumber = c.PhoneNumber,
-                    Doctors = c.Doctors.Select(d => new DoctorSummary
-                    {
-                        Id = d.Id,
-                        Name = d.User.Name,
-                        Bio = d.Bio,
-                        Image = d.Image,
-                        ApprovalDate = d.ApprovalDate,
-                        IsApproved = d.IsApproved,
-                        IsRejected = d.IsRejected,
-                        SpecializationId = d.SpecializationId
-
-                    }).ToList()
-                })
+                .Select(c => new ClinicDTO(c))
                 .FirstOrDefaultAsync();
             return content == null ? _builder.NotFoundResult<ClinicDTO>($"Clinic {id} was not found.") : _builder.OkResult<ClinicDTO>(content);
         }

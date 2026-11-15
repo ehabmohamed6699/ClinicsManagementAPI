@@ -9,5 +9,6 @@ namespace ClinicAppointmentReservation.Domain.Interfaces
     public interface IPatientRepository
     {
         Result<Patient> Add(Patient entity);
+        Task<Result<Patient>> GetByUserIdAsync(string userId);
     }
 }

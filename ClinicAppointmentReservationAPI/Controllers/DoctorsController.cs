@@ -64,7 +64,7 @@ namespace ClinicAppointmentReservation.WebAPI.Controllers
             };
             var result = _unitOfWork.Doctors.Add(newDoctor);
             await _unitOfWork.SaveChangesAsync();
-            return this.ToCreatedAtActionResult<Doctor>(result, nameof(GetById), new {Id = result.Content!.Value!.Id});
+            return this.ToCreatedAtActionResult<Doctor>(result, nameof(GetById), d => new {Id = d.Id});
         }
         [HttpPatch("approve-doctor/{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin")]

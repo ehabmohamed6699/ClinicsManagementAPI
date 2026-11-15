@@ -6,5 +6,6 @@ namespace ClinicAppointmentReservation.Domain.Interfaces
     public interface IAppointmentRepository
     {
         Task<Result<Appointment>> BookAppointment(FormAppointment appointment, string userId);
+        Task<Result<AppointmentDTO>> GetById(int id, int patientId, int doctorId);
     }
 }

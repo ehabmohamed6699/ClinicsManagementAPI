@@ -23,9 +23,18 @@ namespace ClinicAppointmentReservation.WebAPI.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "patient,doctor")]
         public async Task<IActionResult> GetById(int id)
         {
-            throw new NotImplementedException();
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Problem(statusCode: StatusCodes.Status404NotFound, title: $"User profile not found.");
+            var patient = await _unitOfWork.Patients.GetByUserIdAsync(user.Id);
+            var doctor = await _unitOfWork.Doctors.GetByUserIdAsync(user.Id);
+            if(!patient.IsSuccess && !doctor.IsSuccess) return this.ToActionResult<Patient>(patient);
+            int patientId = patient.IsSuccess ? patient.Content!.Value!.Id : 0;
+            int doctorId = doctor.IsSuccess ? doctor.Content!.Value!.Id : 0;
+            var result = await _unitOfWork.Appointments.GetById(id, patientId, doctorId);
+            return this.ToActionResult<AppointmentDTO>(result);
         }
         [HttpPost]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "patient")]
@@ -34,9 +43,9 @@ namespace ClinicAppointmentReservation.WebAPI.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Problem(statusCode: StatusCodes.Status404NotFound, title: $"User profile not found.");
             var result = await _unitOfWork.Appointments.BookAppointment(appointment, user.Id);
-            if(!result.IsSuccess)
+
             await _unitOfWork.SaveChangesAsync();
-            return this.ToCreatedAtActionResult<Appointment>(result, nameof(GetById), new {Id = result.Content.Value.Id});
+            return this.ToCreatedAtActionResult<AppointmentDTO>(result.Map<AppointmentDTO>(a => new AppointmentDTO(a)), nameof(GetById), v => new {Id = v.Id});
         }
     }
 }

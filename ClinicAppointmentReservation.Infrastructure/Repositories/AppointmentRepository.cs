@@ -10,17 +10,24 @@ namespace ClinicAppointmentReservation.Infrastructure.Repositories
 {
     public class AppointmentRepository(AppDbContext context, ResultBuilder builder) : IAppointmentRepository
     {
-        private readonly int SlotMinutes = 30;
-        private readonly int MaxBookingDays = 7;
+        private const int SlotMinutes = 30;
+        private const int MaxBookingDays = 7;
+
+        public async Task<Result<AppointmentDTO>> GetById(int id, int patientId, int doctorId)
+        {
+            var appointment = await context.Appointments.Include(a => a.Patient).ThenInclude(p => p.User).Include(a => a.Doctor).ThenInclude(d => d.User).Include(a => a.Clinic).FirstOrDefaultAsync(a => a.Id == id);
+            if(appointment == null || (appointment.PatientId != patientId && appointment.DoctorId != doctorId)) return builder.NotFoundResult<AppointmentDTO>($"Appointment {id} was not found.");
+            return builder.OkResult<AppointmentDTO>(new AppointmentDTO(appointment));
+        }
         public async Task<Result<Appointment>> BookAppointment(FormAppointment appointment, string userId)
         {
             var now = DateTime.Now;
-            if(appointment.AppointmentDate > now.AddDays(MaxBookingDays) || appointment.AppointmentDate <= now.AddMinutes(SlotMinutes))
+            if(appointment.AppointmentDate > now.AddDays(MaxBookingDays) || appointment.AppointmentDate < now.AddMinutes(SlotMinutes))
                 return builder.BadRequestResult<Appointment>($"Appointment date must be at least {SlotMinutes} minutes from now and at most {MaxBookingDays} days from now");
-            var patinet = await context.Patients.FirstOrDefaultAsync(p => p.UserId == userId);
+            var patinet = await context.Patients.Include(p => p.User).FirstOrDefaultAsync(p => p.UserId == userId);
             if (patinet == null) 
                 return builder.NotFoundResult<Appointment>($"User {userId} has no profile.");
-            var doctor = await context.Doctors.FindAsync(appointment.DoctorId);
+            var doctor = await context.Doctors.Include(d => d.User).FirstOrDefaultAsync(d => d.Id == appointment.DoctorId);
             if(doctor == null) 
                 return builder.NotFoundResult<Appointment>($"Doctor {appointment.DoctorId} was not found.");
             if(!doctor!.IsApproved) 

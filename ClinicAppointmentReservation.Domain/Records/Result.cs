@@ -10,6 +10,14 @@ public record Result(Error? Error = null)
 public record Result<T>(ResponseContent<T>? Content, Error? Error = null)
 {
     public bool IsSuccess => Error == null && Content != null;
+    public Result<TOut> Map<TOut>(Func<T, TOut> mapper)
+    {
+        if (IsSuccess)
+        {
+            return new Result<TOut>(new ResponseContent<TOut>(Content!.Type, mapper(Content!.Value!)), null);
+        }
+        return new Result<TOut>(null, Error);
+    }
 }
 
 public class ResultBuilder

@@ -1,9 +1,10 @@
 # PostsAPI
-A clinics management API for managing Clinics, Doctors, Specializations, and Patients (Not reservations yet), Built with ASP.NET Core, EF Core, SQL Server, JWT, and Layered Architecture.
+A clinics management API for managing Clinics, Doctors, Specializations, and Appointments Reservations, Built with ASP.NET Core, EF Core, SQL Server, JWT, and Layered Architecture.
 
 ## Features
 - **Authentication system & role based authorization:** Full identity and role system for different roles.
 - **Doctors membership requests system:** Ability for doctors to apply a become-a-doctor request and get either approved or rejected by admins.
+- **Fully functional appointments reservation system:** Booking appointemtns for patients with doctors in clinics with deep schedule validation.
 - **Specializations and clinics system:** A doctor get to be assigned to specializations and clinics.
 - **Data fetching with searching and pagination:** Accessible endpoints for searching clinics and doctors.
 - **Secured sensitive system endpoints:** Such as creation and manipulation of clinics and specializations as well as navigating through unapproved doctors.
@@ -49,5 +50,7 @@ dotnet run
 | POST | `/api/specializations` | admin only | creates a new specialization |
 | PUT | `/api/specializations/{id}` | admin only | updates a specialization of specific ID |
 | DELETE | `/api/specializations/{id}` | admin only | deletes a specialization of specific ID |
+| GET | `/api/appointments/{id}` | patients and doctors only | returns an appointment of specific ID |
+| POST | `/api/appointments` | patients only | books an appointment with specified doctor in specific clinic |
 
 ## This app is built using layered architecture

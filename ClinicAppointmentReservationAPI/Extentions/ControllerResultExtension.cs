@@ -15,11 +15,11 @@ public static class ControllerResultExtension
         ErrorType.ValidationFailed => controller.Problem(statusCode: 400, title: error.Message),
         _ => controller.Problem()  
     };
-    public static IActionResult ToCreatedAtActionResult<T>(this ControllerBase controller, Result<T> result, string actionName, object routeValues)
+    public static IActionResult ToCreatedAtActionResult<T>(this ControllerBase controller, Result<T> result, string actionName, Func<T, object> routeValues)
     {
         if (result.IsSuccess)
         {
-            return controller.CreatedAtAction(actionName, routeValues, result.Content!.Value);
+            return controller.CreatedAtAction(actionName, routeValues(result.Content!.Value!), result.Content!.Value);
         }
         else
         {
