@@ -47,6 +47,7 @@ namespace ClinicAppointmentReservation.Domain.Models.DTO
             IsApproved = d.IsApproved;
             IsRejected = d.IsRejected;
             SpecializationId = d.SpecializationId;
+            ApprovalDate = d.ApprovalDate;
         }
     }
 }
