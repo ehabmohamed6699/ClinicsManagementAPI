@@ -14,7 +14,6 @@ namespace ClinicAppointmentReservation.Domain.Models.DTO
 
         public List<DoctorSummary> Doctors { get; set; }
 
-
     }
 
     public class DoctorSummary
@@ -27,5 +26,18 @@ namespace ClinicAppointmentReservation.Domain.Models.DTO
         public DateTime? ApprovalDate { get; set; }
         public bool IsRejected { get; set; }
         public int SpecializationId { get; set; }
+
+        public DoctorSummary(){}
+        public DoctorSummary(Doctor d)
+        {
+            Id = d.Id;
+            Bio = d.Bio;
+            Name = d.User.Name;
+            Image = d.Image;
+            IsApproved = d.IsApproved;
+            IsRejected = d.IsRejected;
+            SpecializationId = d.SpecializationId;
+            ApprovalDate = d.ApprovalDate;
+        }
     }
 }

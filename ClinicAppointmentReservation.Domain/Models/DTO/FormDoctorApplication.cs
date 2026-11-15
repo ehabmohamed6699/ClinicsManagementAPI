@@ -10,6 +10,8 @@ namespace ClinicAppointmentReservation.Domain.Models.DTO
     {
         [Required]
         public string Bio { get; set; }
+        [Range(0, 10000)]
+        public decimal ConsultationFee {get; set;}
         [Required]
         public int SpecializationId { get; set; }
     }

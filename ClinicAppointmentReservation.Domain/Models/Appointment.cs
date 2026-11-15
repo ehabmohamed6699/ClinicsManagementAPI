@@ -17,6 +17,7 @@ namespace ClinicAppointmentReservation.Domain.Models
         public AppointmentStatus Status { get; set; } = AppointmentStatus.Pending;
 
         public decimal Fee { get; set; }
+        [MaxLength(500)]
         public string? PatientNotes { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;

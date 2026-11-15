@@ -49,7 +49,8 @@ namespace ClinicAppointmentReservation.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("PatientNotes")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -138,6 +139,9 @@ namespace ClinicAppointmentReservation.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("ConsultationFee")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<byte[]>("Image")
                         .HasColumnType("varbinary(max)");

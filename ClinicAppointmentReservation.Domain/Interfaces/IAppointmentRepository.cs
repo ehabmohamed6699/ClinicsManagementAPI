@@ -1,12 +1,11 @@
 ﻿using ClinicAppointmentReservation.Domain.Models.DTO;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
+using ClinicAppointmentReservation.Domain.Models;
+using ClinicAppointmentReservation.Domain.Records;
 namespace ClinicAppointmentReservation.Domain.Interfaces
 {
     public interface IAppointmentRepository
     {
-        Task BookAppointment(FormAppointment appointment, string userId);
+        Task<Result<Appointment>> BookAppointment(FormAppointment appointment, string userId);
+        Task<Result<AppointmentDTO>> GetById(int id, int patientId, int doctorId);
     }
 }

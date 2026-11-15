@@ -9,12 +9,12 @@ namespace ClinicAppointmentReservation.Domain.Interfaces
 {
     public interface IClinicRepository
     {
-        Task<(IEnumerable<Clinic> Clinics, int TotalCount)> GetAllAsync(ClinicSearchParameters parameters);
-        Task<ClinicDTO?> GetByIdAsync(int id);
-        void Add(Clinic entity);
-        void Update(Clinic entity);
-        void Delete(Clinic entity);
-        Task AssignDoctorToClinic(int doctorId, int clinicId);
-        Task UnassignDoctorFromClinic(int doctorId, int clinicId);
+        Task<Result<PaginatedResponseContent<Clinic>>> GetAllAsync(ClinicSearchParameters parameters);
+        Task<Result<ClinicDTO>> GetByIdAsync(int id);
+        Result<Clinic> Add(Clinic entity);
+        Result<object> Update(Clinic entity);
+        Result<object> Delete(Clinic entity);
+        Task<Result<string>> AssignDoctorToClinic(int doctorId, int clinicId);
+        Task<Result<string>> UnassignDoctorFromClinic(int doctorId, int clinicId);
     }
 }

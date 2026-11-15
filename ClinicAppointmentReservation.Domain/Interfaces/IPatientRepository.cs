@@ -1,4 +1,5 @@
 ﻿using ClinicAppointmentReservation.Domain.Models;
+using ClinicAppointmentReservation.Domain.Records;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,6 +8,7 @@ namespace ClinicAppointmentReservation.Domain.Interfaces
 {
     public interface IPatientRepository
     {
-        void Add(Patient entity);
+        Result<Patient> Add(Patient entity);
+        Task<Result<Patient>> GetByUserIdAsync(string userId);
     }
 }

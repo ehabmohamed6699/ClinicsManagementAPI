@@ -1,5 +1,6 @@
 using ClinicAppointmentReservation.Domain.Interfaces;
 using ClinicAppointmentReservation.Domain.Models;
+using ClinicAppointmentReservation.Domain.Records;
 using ClinicAppointmentReservation.Infrastructure.Data;
 using ClinicAppointmentReservation.Infrastructure.Data.Mapper;
 using ClinicAppointmentReservation.Infrastructure.Repositories;
@@ -19,6 +20,7 @@ builder.Services.AddDbContext<AppDbContext>(op => op.UseSqlServer(builder.Config
 builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<AppDbContext>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddSingleton<DoctorMapper>();
+builder.Services.AddSingleton<ResultBuilder>();
 builder.Services.AddControllers().AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
