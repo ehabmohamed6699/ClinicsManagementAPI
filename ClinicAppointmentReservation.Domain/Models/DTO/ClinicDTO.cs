@@ -14,16 +14,6 @@ namespace ClinicAppointmentReservation.Domain.Models.DTO
 
         public List<DoctorSummary> Doctors { get; set; }
 
-        public ClinicDTO(){}
-        public ClinicDTO(Clinic c)
-        {
-            Id = c.Id;
-            Name = c.Name;
-            Address = c.Address;
-            PhoneNumber = c.PhoneNumber;
-            Doctors = c.Doctors.Select(d => new DoctorSummary(d)).ToList();
-        }
-
     }
 
     public class DoctorSummary
