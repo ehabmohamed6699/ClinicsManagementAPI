@@ -34,8 +34,9 @@ namespace ClinicAppointmentReservation.WebAPI.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Problem(statusCode: StatusCodes.Status404NotFound, title: $"User profile not found.");
             var result = await _unitOfWork.Appointments.BookAppointment(appointment, user.Id);
+            if(!result.IsSuccess)
             await _unitOfWork.SaveChangesAsync();
-            return this.ToActionResult<Appointment>(result);
+            return this.ToCreatedAtActionResult<Appointment>(result, nameof(GetById), new {Id = result.Content.Value.Id});
         }
     }
 }

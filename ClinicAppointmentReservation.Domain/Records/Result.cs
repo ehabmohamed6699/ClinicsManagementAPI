@@ -9,7 +9,7 @@ public record Result(Error? Error = null)
 
 public record Result<T>(ResponseContent<T>? Content, Error? Error = null)
 {
-    public bool IsSuccess => Error == null;
+    public bool IsSuccess => Error == null && Content != null;
 }
 
 public class ResultBuilder
@@ -20,5 +20,5 @@ public class ResultBuilder
     public Result<T> ForbiddenResult<T>(string message) => new Result<T>(null, new Error(ErrorType.Forbidden, message));
     public Result<T> ConflictResult<T>(string message) => new Result<T>(null, new Error(ErrorType.Conflict, message));
     public Result<T> NotFoundResult<T>(string message) => new Result<T>(null, new Error(ErrorType.NotFound, message));
-    public Result<T> BadRequestResult<T>(string message) => new Result<T>(null, new Error(ErrorType.BadRequest, message));
+    public Result<T> BadRequestResult<T>(string message) => new Result<T>(null, new Error(ErrorType.ValidationFailed, message));
 }

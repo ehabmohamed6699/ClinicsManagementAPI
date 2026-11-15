@@ -10,20 +10,13 @@ namespace ClinicAppointmentReservation.Infrastructure.Repositories
 {
     public class AppointmentRepository(AppDbContext context, ResultBuilder builder) : IAppointmentRepository
     {
-        private bool DateScheduled(Appointment appointment, DateTime bookingDate, int patientId, int doctorId)
-        {
-            if(bookingDate >= appointment.AppointmentDate.AddMinutes(30) || bookingDate <= appointment.AppointmentDate.AddMinutes(-30)) return false;
-            if(appointment.DoctorId == doctorId || appointment.PatientId == patientId)
-            {
-                if(appointment.Status == AppointmentStatus.Pending || appointment.Status == AppointmentStatus.Confirmed) return true;
-            }
-            return false;
-        }
+        private readonly int SlotMinutes = 30;
+        private readonly int MaxBookingDays = 7;
         public async Task<Result<Appointment>> BookAppointment(FormAppointment appointment, string userId)
         {
             var now = DateTime.Now;
-            if(appointment.AppointmentDate > now.AddDays(7) || appointment.AppointmentDate <= now.AddMinutes(30))
-                return builder.BadRequestResult<Appointment>("Appointment date must be at least 30 minutes from now and at most 7 days from now");
+            if(appointment.AppointmentDate > now.AddDays(MaxBookingDays) || appointment.AppointmentDate <= now.AddMinutes(SlotMinutes))
+                return builder.BadRequestResult<Appointment>($"Appointment date must be at least {SlotMinutes} minutes from now and at most {MaxBookingDays} days from now");
             var patinet = await context.Patients.FirstOrDefaultAsync(p => p.UserId == userId);
             if (patinet == null) 
                 return builder.NotFoundResult<Appointment>($"User {userId} has no profile.");
@@ -39,7 +32,7 @@ namespace ClinicAppointmentReservation.Infrastructure.Repositories
             if(!doctorInClinic) 
                 return builder.ConflictResult<Appointment>("Doctor not in clinic.");
             var scheduled = await context.Appointments.AnyAsync(a => 
-                !(a.AppointmentDate.AddMinutes(30) <= appointment.AppointmentDate || a.AppointmentDate >= appointment.AppointmentDate.AddMinutes(30))
+                !(a.AppointmentDate.AddMinutes(SlotMinutes) <= appointment.AppointmentDate || a.AppointmentDate >= appointment.AppointmentDate.AddMinutes(SlotMinutes))
                 && (appointment.DoctorId == a.DoctorId || patinet.Id == a.PatientId)
                 && (a.Status == AppointmentStatus.Pending || a.Status == AppointmentStatus.Confirmed)
             );
