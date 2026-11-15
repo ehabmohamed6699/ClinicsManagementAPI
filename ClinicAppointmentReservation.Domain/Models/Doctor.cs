@@ -14,7 +14,7 @@ namespace ClinicAppointmentReservation.Domain.Models
         public byte[]? Image { get; set; }
         [Range(0, 10000)]
         [DefaultValue(0)]
-        public int ConsultationFee {get; set;}
+        public decimal ConsultationFee {get; set;}
         public bool IsApproved { get; set; } = false;
         public DateTime? ApprovalDate { get; set; } = null;
         public bool IsRejected { get; set; } = false;
